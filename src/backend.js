@@ -91,4 +91,79 @@ export function computeObjectif(exercises) {
   const acquis = exercises.filter((e) => e.status === "acquis").length;
   const pct = total > 0 ? Math.round((acquis / total) * 100) : 0;
   const atteint = total > 0 && acquis === total;
-  return { total, acquis
+  return { total, acquis, pct, atteint };
+}
+
+export function shortDateLabel(dateStr, todayStr) {
+  const d = new Date(dateStr + "T00:00:00");
+  const wd = d.toLocaleDateString("fr-FR", { weekday: "short" });
+  const dm = d.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" });
+  const label = `${wd.charAt(0).toUpperCase()}${wd.slice(1)} ${dm}`;
+  return dateStr === todayStr ? `${label} (aujourd'hui)` : label;
+}
+
+export function weekdayLabel(dateStr) {
+  const d = new Date(dateStr + "T00:00:00");
+  const label = d.toLocaleDateString("fr-FR", { weekday: "long" });
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+export function todayISO() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+export const STATUS_META = {
+  non_acquis: { label: "Non acquis", color: C.red, icon: Circle },
+  en_cours: { label: "En cours", color: C.amber, icon: Loader2 },
+  acquis: { label: "Acquis", color: C.moss, icon: CheckCircle2 },
+};
+
+export const SESSION_STATUS_META = {
+  a_venir: { label: "À venir", color: C.clay },
+  en_cours: { label: "En cours", color: C.orange },
+  terminee: { label: "Terminée", color: C.forest },
+};
+
+export const DAYS = [
+  { key: "lun", label: "L" },
+  { key: "mar", label: "Ma" },
+  { key: "mer", label: "Me" },
+  { key: "jeu", label: "J" },
+  { key: "ven", label: "V" },
+  { key: "sam", label: "S" },
+  { key: "dim", label: "D" },
+];
+
+export function cycleStatus(s) {
+  if (s === "non_acquis") return "en_cours";
+  if (s === "en_cours") return "acquis";
+  return "non_acquis";
+}
+
+// ===== api.js =====
+
+// ---------- AUTH ----------
+
+export async function signUpChef({ orgName, chefName, phone, password }) {
+  const cleanPhone = String(phone).replace(/\s+/g, "");
+  const email = emailForPhone(cleanPhone);
+
+  const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
+  if (signUpError) {
+    if (signUpError.message?.toLowerCase().includes("already registered")) {
+      throw new Error("Ce numéro est déjà associé à un compte.");
+    }
+    throw signUpError;
+  }
+  if (!signUpData.session) {
+    // Confirm email est probablement encore active cote Supabase Auth.
+    throw new Error(
+      "Le compte est cree mais la connexion automatique a echoue : desactivez Confirm email dans Supabase (Authentication > Providers > Email), puis reconnectez-vous."
+    );
+  }
+
+  const userId = signUpData.user.id;
+
+  const { data: org, error: orgError } = await supabase
+    .from("organizations")
+    .insert({ name: orgName, chef_name: chefName, chef_auth_id: userId, chef_phone: cleanPhone })
