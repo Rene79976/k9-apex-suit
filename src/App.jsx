@@ -588,23 +588,86 @@ function LoginScreen({ onLogin, onSignup, externalError }) {
           )}
           <Field label="Numéro de téléphone" value={phone} onChange={setPhone} placeholder="22507000000" />
           <Field label="Mot de passe" value={password} onChange={setPassword} type="password" />
+function LoginScreen({ onLogin, onSignup, externalError }) {
+  const [mode, setMode] = useState("login");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [chefName, setChefName] = useState("");
+  const [orgName, setOrgName] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const switchMode = (m) => { setMode(m); setError(""); };
+
+  const submitLogin = async () => {
+    if (!phone.trim() || !password.trim()) { setError("Renseignez votre numero et votre mot de passe."); return; }
+    setBusy(true);
+    const ok = await onLogin(phone, password);
+    setBusy(false);
+    if (!ok) setError(externalError || "Numero ou mot de passe incorrect.");
+  };
+
+  const submitSignup = async () => {
+    if (!chefName.trim() || !orgName.trim() || !phone.trim() || !password.trim()) {
+      setError("Renseignez le nom de votre organisation, votre nom, votre numero et un mot de passe.");
+      return;
+    }
+    if (password.length < 4) { setError("Le mot de passe doit faire au moins 4 caracteres."); return; }
+    if (password !== confirmPassword) { setError("Les deux mots de passe ne correspondent pas."); return; }
+    setBusy(true);
+    const result = await onSignup({ chefName: chefName.trim(), orgName: orgName.trim(), phone, password });
+    setBusy(false);
+    if (!result.ok) setError(result.error);
+  };
+
+  return (
+    <div
+      style={{ background: C.forest, minHeight: "100dvh" }}
+      className="w-full flex flex-col justify-center items-center px-5 py-10 overflow-y-auto"
+    >
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+        .disp { font-family: 'Oswald', sans-serif; letter-spacing: 0.02em; }
+      `}</style>
+      <div className="w-full max-w-sm my-auto">
+        <div className="text-center mb-6">
+          <div style={{ fontSize: 30 }}>🐾</div>
+          <div className="disp text-xl tracking-widest mt-2" style={{ color: "#fff" }}>K9 APEX SUIT</div>
+          <div className="text-xs mt-1 px-4" style={{ color: C.clay }}>Gestion des equipes d'educateurs canins</div>
+        </div>
+
+        <div className="flex gap-1.5 mb-4">
+          <button onClick={() => switchMode("login")} className="flex-1 text-sm py-2.5 rounded-full disp" style={{ background: mode === "login" ? C.orange : "transparent", color: mode === "login" ? "#fff" : C.clay, border: `1px solid ${C.clay}` }}>Se connecter</button>
+          <button onClick={() => switchMode("signup")} className="flex-1 text-sm py-2.5 rounded-full disp" style={{ background: mode === "signup" ? C.orange : "transparent", color: mode === "signup" ? "#fff" : C.clay, border: `1px solid ${C.clay}` }}>Creer mon compte</button>
+        </div>
+
+        <div className="rounded-lg p-5" style={{ background: C.card, border: `1px solid ${C.line}` }}>
           {mode === "signup" && (
-            <Field label="Confirmer le mot de passe" value={confirmPassword} onChange={setConfirmPassword} type="password" />
+            <>
+              <Field label="Nom de votre organisation" value={orgName} onChange={setOrgName} placeholder="Ex: Dressage Canin Cocody" autoComplete="organization" />
+              <Field label="Votre nom (chef d'equipe)" value={chefName} onChange={setChefName} placeholder="Ex: Konan Yves" autoComplete="name" />
+            </>
+          )}
+          <Field label="Numero de telephone" value={phone} onChange={setPhone} placeholder="22507000000" type="tel" inputMode="tel" autoComplete="tel" />
+          <Field label="Mot de passe" value={password} onChange={setPassword} type="password" autoComplete={mode === "signup" ? "new-password" : "current-password"} />
+          {mode === "signup" && (
+            <Field label="Confirmer le mot de passe" value={confirmPassword} onChange={setConfirmPassword} type="password" autoComplete="new-password" />
           )}
 
-          {error && <div className="text-xs mt-2" style={{ color: C.red }}>{error}</div>}
+          {error && <div className="text-sm mt-2" style={{ color: C.red }}>{error}</div>}
 
           {mode === "login" ? (
-            <button disabled={busy} onClick={submitLogin} className="w-full mt-4 py-3 rounded-lg flex items-center justify-center gap-2 disp text-sm tracking-wide" style={{ background: C.orange, color: "#fff" }}>
+            <button disabled={busy} onClick={submitLogin} className="w-full mt-4 py-3.5 rounded-lg flex items-center justify-center gap-2 disp text-sm tracking-wide active:opacity-80" style={{ background: C.orange, color: "#fff" }}>
               <Lock size={16} /> {busy ? "CONNEXION…" : "SE CONNECTER"}
             </button>
           ) : (
             <>
               <div className="text-[11px] mt-3" style={{ color: C.inkSoft }}>
-                Vous créez le compte du chef d'équipe. Vous pourrez ensuite ajouter vos éducateurs depuis "Mon équipe".
+                Vous creez le compte du chef d'equipe. Vous pourrez ensuite ajouter vos educateurs depuis "Mon equipe".
               </div>
-              <button disabled={busy} onClick={submitSignup} className="w-full mt-3 py-3 rounded-lg flex items-center justify-center gap-2 disp text-sm tracking-wide" style={{ background: C.forest, color: "#fff" }}>
-                <Users size={16} /> {busy ? "CRÉATION…" : "CRÉER MON COMPTE ET MON ÉQUIPE"}
+              <button disabled={busy} onClick={submitSignup} className="w-full mt-3 py-3.5 rounded-lg flex items-center justify-center gap-2 disp text-sm tracking-wide active:opacity-80" style={{ background: C.forest, color: "#fff" }}>
+                <Users size={16} /> {busy ? "CREATION…" : "CREER MON COMPTE ET MON EQUIPE"}
               </button>
             </>
           )}
@@ -614,20 +677,23 @@ function LoginScreen({ onLogin, onSignup, externalError }) {
   );
 }
 
-function Field({ label, value, onChange, placeholder, type = "text" }) {
+function Field({ label, value, onChange, placeholder, type = "text", inputMode, autoComplete }) {
   return (
     <div className="mb-3">
       <div className="text-[11px] mb-1" style={{ color: C.inkSoft }}>{label}</div>
       <input
         type={type}
+        inputMode={inputMode}
+        autoComplete={autoComplete}
         value={value}
         onChange={(ev) => onChange(ev.target.value)}
         placeholder={placeholder}
-        className="w-full text-sm px-3 py-2 rounded outline-none"
-        style={{ background: C.paperDark, border: `1px solid ${C.line}` }}
+        className="w-full text-base px-3 py-3 rounded outline-none"
+        style={{ background: C.paperDark, border: `1px solid ${C.line}`, fontSize: 16 }}
       />
     </div>
   );
+}
 }
 
 // =================== TEAM OVERVIEW ===================
