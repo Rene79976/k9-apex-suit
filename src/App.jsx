@@ -478,7 +478,7 @@ export default function App() {
                 isEducatorView={!isChef}
               />
             </>
-          )
+            )
         )}
       </div>
 
@@ -514,7 +514,10 @@ export default function App() {
         />
       )}
     </div>
-  );function FullScreenMessage({ text }) {
+  );
+}
+
+function FullScreenMessage({ text }) {
   return (
     <div style={{ background: C.forest, minHeight: "100vh", color: "#fff" }} className="w-full flex items-center justify-center">
       <div className="disp text-sm tracking-widest">{text}</div>
@@ -562,66 +565,6 @@ function LoginScreen({ onLogin, onSignup, externalError }) {
   };
 
   return (
-    <div style={{ background: C.forest, minHeight: "100vh" }} className="w-full flex justify-center items-center px-6">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
-        .disp { font-family: 'Oswald', sans-serif; letter-spacing: 0.02em; }
-      `}</style>
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-6">
-          <div style={{ fontSize: 30 }}>🐾</div>
-          <div className="disp text-xl tracking-widest mt-2" style={{ color: "#fff" }}>K9 APEX SUIT</div>
-          <div className="text-xs mt-1" style={{ color: C.clay }}>Gestion des équipes d'éducateurs canins</div>
-        </div>
-
-        <div className="flex gap-1.5 mb-4">
-          <button onClick={() => switchMode("login")} className="flex-1 text-xs py-2 rounded-full disp" style={{ background: mode === "login" ? C.orange : "transparent", color: mode === "login" ? "#fff" : C.clay, border: `1px solid ${C.clay}` }}>Se connecter</button>
-          <button onClick={() => switchMode("signup")} className="flex-1 text-xs py-2 rounded-full disp" style={{ background: mode === "signup" ? C.orange : "transparent", color: mode === "signup" ? "#fff" : C.clay, border: `1px solid ${C.clay}` }}>Créer mon compte</button>
-        </div>
-
-        <div className="rounded-lg p-5" style={{ background: C.card, border: `1px solid ${C.line}` }}>
-          {mode === "signup" && (
-            <>
-              <Field label="Nom de votre organisation" value={orgName} onChange={setOrgName} placeholder="Ex: Dressage Canin Cocody" />
-              <Field label="Votre nom (chef d'équipe)" value={chefName} onChange={setChefName} placeholder="Ex: Konan Yves" />
-            </>
-          )}
-          <Field label="Numéro de téléphone" value={phone} onChange={setPhone} placeholder="22507000000" />
-          <Field label="Mot de passe" value={password} onChange={setPassword} type="password" />
-function LoginScreen({ onLogin, onSignup, externalError }) {
-  const [mode, setMode] = useState("login");
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [chefName, setChefName] = useState("");
-  const [orgName, setOrgName] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-
-  const switchMode = (m) => { setMode(m); setError(""); };
-
-  const submitLogin = async () => {
-    if (!phone.trim() || !password.trim()) { setError("Renseignez votre numero et votre mot de passe."); return; }
-    setBusy(true);
-    const ok = await onLogin(phone, password);
-    setBusy(false);
-    if (!ok) setError(externalError || "Numero ou mot de passe incorrect.");
-  };
-
-  const submitSignup = async () => {
-    if (!chefName.trim() || !orgName.trim() || !phone.trim() || !password.trim()) {
-      setError("Renseignez le nom de votre organisation, votre nom, votre numero et un mot de passe.");
-      return;
-    }
-    if (password.length < 4) { setError("Le mot de passe doit faire au moins 4 caracteres."); return; }
-    if (password !== confirmPassword) { setError("Les deux mots de passe ne correspondent pas."); return; }
-    setBusy(true);
-    const result = await onSignup({ chefName: chefName.trim(), orgName: orgName.trim(), phone, password });
-    setBusy(false);
-    if (!result.ok) setError(result.error);
-  };
-
-  return (
     <div
       style={{ background: C.forest, minHeight: "100dvh" }}
       className="w-full flex flex-col justify-center items-center px-5 py-10 overflow-y-auto"
@@ -634,22 +577,22 @@ function LoginScreen({ onLogin, onSignup, externalError }) {
         <div className="text-center mb-6">
           <div style={{ fontSize: 30 }}>🐾</div>
           <div className="disp text-xl tracking-widest mt-2" style={{ color: "#fff" }}>K9 APEX SUIT</div>
-          <div className="text-xs mt-1 px-4" style={{ color: C.clay }}>Gestion des equipes d'educateurs canins</div>
+          <div className="text-xs mt-1 px-4" style={{ color: C.clay }}>Gestion des équipes d'éducateurs canins</div>
         </div>
 
         <div className="flex gap-1.5 mb-4">
           <button onClick={() => switchMode("login")} className="flex-1 text-sm py-2.5 rounded-full disp" style={{ background: mode === "login" ? C.orange : "transparent", color: mode === "login" ? "#fff" : C.clay, border: `1px solid ${C.clay}` }}>Se connecter</button>
-          <button onClick={() => switchMode("signup")} className="flex-1 text-sm py-2.5 rounded-full disp" style={{ background: mode === "signup" ? C.orange : "transparent", color: mode === "signup" ? "#fff" : C.clay, border: `1px solid ${C.clay}` }}>Creer mon compte</button>
+          <button onClick={() => switchMode("signup")} className="flex-1 text-sm py-2.5 rounded-full disp" style={{ background: mode === "signup" ? C.orange : "transparent", color: mode === "signup" ? "#fff" : C.clay, border: `1px solid ${C.clay}` }}>Créer mon compte</button>
         </div>
 
         <div className="rounded-lg p-5" style={{ background: C.card, border: `1px solid ${C.line}` }}>
           {mode === "signup" && (
             <>
               <Field label="Nom de votre organisation" value={orgName} onChange={setOrgName} placeholder="Ex: Dressage Canin Cocody" autoComplete="organization" />
-              <Field label="Votre nom (chef d'equipe)" value={chefName} onChange={setChefName} placeholder="Ex: Konan Yves" autoComplete="name" />
+              <Field label="Votre nom (chef d'équipe)" value={chefName} onChange={setChefName} placeholder="Ex: Konan Yves" autoComplete="name" />
             </>
           )}
-          <Field label="Numero de telephone" value={phone} onChange={setPhone} placeholder="22507000000" type="tel" inputMode="tel" autoComplete="tel" />
+          <Field label="Numéro de téléphone" value={phone} onChange={setPhone} placeholder="22507000000" type="tel" inputMode="tel" autoComplete="tel" />
           <Field label="Mot de passe" value={password} onChange={setPassword} type="password" autoComplete={mode === "signup" ? "new-password" : "current-password"} />
           {mode === "signup" && (
             <Field label="Confirmer le mot de passe" value={confirmPassword} onChange={setConfirmPassword} type="password" autoComplete="new-password" />
@@ -664,10 +607,10 @@ function LoginScreen({ onLogin, onSignup, externalError }) {
           ) : (
             <>
               <div className="text-[11px] mt-3" style={{ color: C.inkSoft }}>
-                Vous creez le compte du chef d'equipe. Vous pourrez ensuite ajouter vos educateurs depuis "Mon equipe".
+                Vous créez le compte du chef d'équipe. Vous pourrez ensuite ajouter vos éducateurs depuis "Mon équipe".
               </div>
               <button disabled={busy} onClick={submitSignup} className="w-full mt-3 py-3.5 rounded-lg flex items-center justify-center gap-2 disp text-sm tracking-wide active:opacity-80" style={{ background: C.forest, color: "#fff" }}>
-                <Users size={16} /> {busy ? "CREATION…" : "CREER MON COMPTE ET MON EQUIPE"}
+                <Users size={16} /> {busy ? "CRÉATION…" : "CRÉER MON COMPTE ET MON ÉQUIPE"}
               </button>
             </>
           )}
@@ -693,7 +636,6 @@ function Field({ label, value, onChange, placeholder, type = "text", inputMode, 
       />
     </div>
   );
-}
 }
 
 // =================== TEAM OVERVIEW ===================
@@ -984,7 +926,7 @@ function Agenda({ clients, sessions, exercises, onSelect, isEducatorView }) {
 }
 
 // =================== CLIENT DETAIL (ex SessionDetail) ===================
-}
+
 function ClientDetail({ client, session, exercises, isChef, locating, onPoint, onToggleExercise, onAddExercise, onDeleteExercise, onToggleVisitDay, onNotesChange, onGenerateReport, onRequestCloseContract }) {
   const [newExercise, setNewExercise] = useState("");
   const [notesDraft, setNotesDraft] = useState(session?.notes || "");
